@@ -1,0 +1,111 @@
+<div id="caseEditModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>编辑案例</h3>
+            <button class="close-btn" onclick="closeEditModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="caseEditForm" onsubmit="handleSubmit(event)">
+                <!-- 基本信息 -->
+                <div class="detail-section">
+                    <div class="section-header">
+                        <h4><i class="fas fa-info-circle"></i> 基本信息</h4>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>案件编号</label>
+                                <input type="text" name="case_id" readonly class="form-control">
+                            </div>
+                            <div class="info-item">
+                                <label>标题</label>
+                                <input type="text" name="title" required class="form-control">
+                            </div>
+                            <div class="info-item">
+                                <label>类型</label>
+                                <select name="type" required class="form-control">
+                                    <option value="虚假宣传">虚假宣传</option>
+                                    <option value="违禁产品">违禁产品</option>
+                                    <option value="假冒伪劣">假冒伪劣</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>平台</label>
+                                <input type="text" name="platform" required class="form-control">
+                            </div>
+                            <div class="info-item">
+                                <label>涉案金额</label>
+                                <input type="number" name="amount" step="0.01" required class="form-control">
+                            </div>
+                            <div class="info-item">
+                                <label>受害人数</label>
+                                <input type="number" name="victim_count" required class="form-control">
+                            </div>
+                            <div class="info-item">
+                                <label>状态</label>
+                                <select name="status" required class="form-control">
+                                    <option value="处理中">处理中</option>
+                                    <option value="已结案">已结案</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>处罚结果</label>
+                                <textarea name="punishment_result" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 证据材料 -->
+                <div class="detail-section">
+                    <div class="section-header">
+                        <h4><i class="fas fa-file-alt"></i> 证据材料</h4>
+                    </div>
+                    <div class="section-content">
+                        <div id="evidenceList" class="evidence-list">
+                            <!-- 动态添加的证据列表 -->
+                        </div>
+                        <button type="button" class="add-btn" onclick="addEvidence()">
+                            <i class="fas fa-plus"></i> 添加证据
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 案件进展 -->
+                <div class="detail-section">
+                    <div class="section-header">
+                        <h4><i class="fas fa-tasks"></i> 案件进展</h4>
+                    </div>
+                    <div class="section-content">
+                        <div id="progressList" class="timeline">
+                            <!-- 动态添加的进展列表 -->
+                        </div>
+                        <button type="button" class="add-btn" onclick="addProgress()">
+                            <i class="fas fa-plus"></i> 添加进展
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 焦点新闻 -->
+                <div class="detail-section">
+                    <div class="section-header">
+                        <h4><i class="fas fa-newspaper"></i> 焦点新闻</h4>
+                    </div>
+                    <div class="section-content">
+                        <div id="newsList" class="news-list">
+                            <!-- 动态添加的新闻列表 -->
+                        </div>
+                        <button type="button" class="add-btn" onclick="addNews()">
+                            <i class="fas fa-plus"></i> 添加新闻
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 固定在底部的按钮 -->
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeEditModal()">取消</button>
+            <button type="submit" class="btn-save" form="caseEditForm">保存</button>
+        </div>
+    </div>
+</div> 

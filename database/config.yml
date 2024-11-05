@@ -1,0 +1,15 @@
+development:
+  adapter: postgresql
+  database: rights_protection_dev
+  host: localhost
+  port: 5432
+  username: dev_user
+  password: dev_password
+
+production:
+  adapter: postgresql
+  database: rights_protection_prod
+  host: production_host
+  port: 5432
+  username: prod_user
+  password: prod_password 

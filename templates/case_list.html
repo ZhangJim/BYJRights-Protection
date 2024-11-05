@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>案例管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            案例管理系统
+        </div>
+        <div class="nav-tabs">
+            <a href="{{ url_for('cases') }}" class="nav-tab active">案例列表</a>
+            <a href="{{ url_for('feature_list') }}" class="nav-tab">功能清单</a>
+        </div>
+        <div class="user-info">
+            <div class="user-menu">
+                <span>管理员</span>
+                <a href="{{ url_for('login') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <div class="content-header">
+                <h2>维权案例列表</h2>
+                <div class="actions">
+                    <button class="primary-btn">
+                        <i class="fas fa-plus"></i> 新增案例
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="case-table">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>案件编号</th>
+                            <th>标题</th>
+                            <th>类型</th>
+                            <th>平台</th>
+                            <th>涉案金额</th>
+                            <th>受害人数</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for case in cases %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ case[0] }}</td>
+                            <td>
+                                <a href="#" class="case-title" onclick="showCaseDetail('{{ case[0] }}')">{{ case[1] }}</a>
+                            </td>
+                            <td>
+                                <span class="tag">{{ case[2] }}</span>
+                            </td>
+                            <td>{{ case[3] }}</td>
+                            <td>¥{{ "{:,.2f}".format(case[4]) }}</td>
+                            <td>{{ case[5] }}人</td>
+                            <td>
+                                <span class="status-badge {{ case[6] }}">{{ case[6] }}</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-view" onclick="showCaseDetail('{{ case[0] }}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-edit" onclick="openEditModal('{{ case[0] }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 案例详情/编辑模态框 -->
+    <div id="caseDetailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>案例详情</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="caseDetailContent">
+                <!-- 内容将通过 JavaScript 动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加弹层相关样式 -->
+    <style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .modal-wrapper {
+        min-height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .case-detail-modal {
+        background: white;
+        width: 90%;
+        max-width: 1200px;
+        min-height: 600px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #666;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+
+    .close-btn:hover {
+        background: #f5f5f5;
+    }
+
+    .modal-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    /* 详情内容样式 */
+    .case-detail {
+        display: grid;
+        gap: 30px;
+    }
+
+    .detail-section {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+    }
+
+    .section-header h4 {
+        margin: 0;
+        color: #333;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-content {
+        padding: 20px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .info-value {
+        font-size: 14px;
+        color: #333;
+    }
+
+    /* 时间线样式优化 */
+    .timeline {
+        position: relative;
+        padding-left: 20px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+        padding-left: 20px;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 24px;
+        bottom: 0;
+        width: 2px;
+        background: #eee;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -5px;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #1a73e8;
+        border: 2px solid white;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    /* 加载样式 */
+    .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 100%;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        color: #666;
+        font-size: 14px;
+    }
+    </style>
+
+    <!-- 修改加载案例详情的 JavaScript -->
+    <script>
+    let currentCase = null; // 保存当前���例的数据
+    let isEditMode = false; // 跟踪当前模式
+
+    function showCaseDetail(caseId) {
+        console.log('Showing details for case:', caseId); // 添加调试日志
+        
+        const modal = document.getElementById('caseDetailModal');
+        const content = document.getElementById('caseDetailContent');
+        
+        // 显示加载状态
+        content.innerHTML = `
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">正在加载...</div>
+            </div>
+        `;
+        
+        modal.style.display = 'block';
+        
+        // 获取详情数据
+        fetch(`/api/cases/${caseId}/detail`)
+            .then(response => {
+                console.log('Response:', response); // 添加调试日志
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data:', data); // 添加调试日志
+                
+                if (!data.success) {
+                    throw new Error(data.error || '加载失败');
+                }
+                
+                // 渲染详情内容
+                content.innerHTML = `
+                    <div class="case-detail">
+                        <!-- 基本信息 -->
+                        <div class="detail-section">
+                            <div class="section-header">
+                                <h4>基本信息</h4>
+                            </div>
+                            <div class="section-content">
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">案件编号</span>
+                                        <span class="info-value">${data.data.case.case_id}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">标题</span>
+                                        <span class="info-value">${data.data.case.title}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">类型</span>
+                                        <span class="info-value">${data.data.case.type}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">平台</span>
+                                        <span class="info-value">${data.data.case.platform}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">涉案金额</span>
+                                        <span class="info-value">¥${Number(data.data.case.amount).toLocaleString()}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">受害人数</span>
+                                        <span class="info-value">${data.data.case.victim_count}人</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">处罚结果</span>
+                                        <span class="info-value">${data.data.case.punishment_result || '暂无'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 证据材料 -->
+                        <div class="detail-section">
+                            <div class="section-header">
+                                <h4>证据材料</h4>
+                            </div>
+                            <div class="section-content">
+                                ${renderEvidence(data.data.evidence)}
+                            </div>
+                        </div>
+
+                        <!-- 案件进展 -->
+                        <div class="detail-section">
+                            <div class="section-header">
+                                <h4>案件进展</h4>
+                            </div>
+                            <div class="section-content">
+                                ${renderProgress(data.data.progress)}
+                            </div>
+                        </div>
+
+                        <!-- 焦点新闻 -->
+                        <div class="detail-section">
+                            <div class="section-header">
+                                <h4>焦点新闻</h4>
+                            </div>
+                            <div class="section-content">
+                                ${renderNews(data.data.news)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error); // 添加调试日志
+                content.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>加载失败: ${error.message}</p>
+                    </div>
+                `;
+            });
+    }
+
+    // 渲染证据材料
+    function renderEvidence(evidence) {
+        if (!evidence || evidence.length === 0) {
+            return '<p class="no-data">暂无证据材料</p>';
+        }
+        
+        return `
+            <div class="evidence-list">
+                ${evidence.map(item => `
+                    <div class="evidence-item">
+                        <div class="evidence-info">
+                            <div class="evidence-title">${item.description}</div>
+                            <div class="evidence-meta">
+                                <span>${item.type}</span>
+                                <span>${formatDate(item.upload_time)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // 渲染案件进展
+    function renderProgress(progress) {
+        if (!progress || progress.length === 0) {
+            return '<p class="no-data">暂无进展记录</p>';
+        }
+        
+        return `
+            <div class="timeline">
+                ${progress.map(item => `
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-stage">${item.stage}</span>
+                                <span class="timeline-date">${formatDate(item.date)}</span>
+                            </div>
+                            <div class="timeline-desc">${item.description}</div>
+                            ${item.result ? `<div class="timeline-result">处理结果：${item.result}</div>` : ''}
+                            <div class="timeline-operator">操作人：${item.operator}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // 渲染焦点新闻
+    function renderNews(news) {
+        if (!news || news.length === 0) {
+            return '<p class="no-data">暂无相关新闻</p>';
+        }
+        
+        return `
+            <div class="news-list">
+                ${news.map(item => `
+                    <div class="news-item">
+                        <div class="news-title">
+                            <a href="${item.url}" target="_blank">${item.title}</a>
+                        </div>
+                        <div class="news-meta">
+                            <span class="news-source">${item.source}</span>
+                            <span class="news-date">${formatDate(item.publish_date)}</span>
+                        </div>
+                        <div class="news-summary">${item.summary}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        document.getElementById('caseDetailModal').style.display = 'none';
+    }
+
+    // 点击模态框外部关闭
+    document.getElementById('caseDetailModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // ESC 键关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+    </script>
+
+    <!-- 确保引入了编辑相关的 JS 文件 -->
+    <script src="{{ url_for('static', filename='js/case_edit.js') }}"></script>
+
+    <!-- 在页面底部添加编辑模态框 -->
+    {% include 'case_edit.html' %}
+</body>
+</html> 

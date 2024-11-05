@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>功能清单 - 案例管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            案例管理系统
+        </div>
+        <div class="nav-tabs">
+            <a href="{{ url_for('cases') }}" class="nav-tab">案例列表</a>
+            <a href="{{ url_for('feature_list') }}" class="nav-tab active">功能清单</a>
+        </div>
+        <div class="user-info">
+            <div class="user-menu">
+                <span>管理员</span>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <div class="content-header">
+                <h2>功能清单</h2>
+                <div class="feature-filters">
+                    <div class="filter-group">
+                        <label class="filter-label">状态筛选：</label>
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="implemented">已实现</button>
+                        <button class="filter-btn" data-filter="planned">计划中</button>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">功能分类：</label>
+                        <button class="filter-btn active" data-category="all">全部</button>
+                        {% for category in categories %}
+                        <button class="filter-btn" data-category="{{ category }}">{{ category }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                {% for feature in features %}
+                <div class="feature-card {{ feature.type }}" data-category="{{ feature.category }}">
+                    <div class="feature-header">
+                        <div class="feature-title">
+                            <i class="fas {{ 'fa-check-circle text-success' if feature.status == '已实现' else 'fa-clock text-warning' }}"></i>
+                            <h4>{{ feature.title }}</h4>
+                        </div>
+                        <span class="status-badge {{ 'done' if feature.status == '已实现' else 'planned' }}">
+                            {{ feature.status }}
+                        </span>
+                    </div>
+                    <div class="feature-content">
+                        <p>{{ feature.description }}</p>
+                        <div class="feature-category">
+                            <i class="fas fa-tag"></i>
+                            {{ feature.category }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const featureCards = document.querySelectorAll('.feature-card');
+        let currentStatus = 'all';
+        let currentCategory = 'all';
+
+        // 更新卡片显示
+        function updateCards() {
+            featureCards.forEach(card => {
+                const matchStatus = currentStatus === 'all' || card.classList.contains(currentStatus);
+                const matchCategory = currentCategory === 'all' || card.dataset.category === currentCategory;
+                card.style.display = matchStatus && matchCategory ? 'block' : 'none';
+            });
+        }
+
+        // 状态筛选按钮点击事件
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filterType = this.dataset.filter;
+                const categoryType = this.dataset.category;
+
+                // 更新状态筛选
+                if (filterType) {
+                    currentStatus = filterType;
+                    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                }
+
+                // 更新分类筛选
+                if (categoryType) {
+                    currentCategory = categoryType;
+                    document.querySelectorAll('[data-category]').forEach(b => b.classList.remove('active'));
+                }
+
+                this.classList.add('active');
+                updateCards();
+            });
+        });
+    });
+    </script>
+</body>
+</html> 

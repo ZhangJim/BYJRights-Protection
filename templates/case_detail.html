@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="case-detail">
+    <!-- 基本信息 -->
+    <div class="detail-section">
+        <div class="section-header">
+            <h4><i class="fas fa-info-circle"></i> 基本信息</h4>
+        </div>
+        <div class="section-content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">案件编号</span>
+                    <span class="info-value">{{ case.case_id }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">标题</span>
+                    <span class="info-value">{{ case.title }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">类型</span>
+                    <span class="info-value">{{ case.type }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">平台</span>
+                    <span class="info-value">{{ case.platform }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">涉案金额</span>
+                    <span class="info-value">¥{{ "{:,.2f}".format(case.amount) }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">受害人数</span>
+                    <span class="info-value">{{ case.victim_count }}人</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">处罚结果</span>
+                    <span class="info-value">{{ case.punishment_result or '暂无处罚结果' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 证据材料 -->
+    <div class="detail-section">
+        <div class="section-header">
+            <h4><i class="fas fa-file-alt"></i> 证据材料</h4>
+        </div>
+        <div class="section-content">
+            {% if evidence %}
+            <div class="evidence-list">
+                {% for item in evidence %}
+                <div class="evidence-item">
+                    <div class="evidence-info">
+                        <div class="evidence-title">{{ item.description }}</div>
+                        <div class="evidence-meta">
+                            <span>{{ item.type }}</span>
+                            <span>{{ item.upload_time }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">暂无证据材料</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 案件进展 -->
+    <div class="detail-section">
+        <div class="section-header">
+            <h4><i class="fas fa-tasks"></i> 案件进展</h4>
+        </div>
+        <div class="section-content">
+            {% if progress %}
+            <div class="timeline">
+                {% for item in progress %}
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-stage">{{ item.stage }}</span>
+                            <span class="timeline-date">{{ item.date }}</span>
+                        </div>
+                        <div class="timeline-desc">{{ item.description }}</div>
+                        {% if item.result %}
+                        <div class="timeline-result">处理结果：{{ item.result }}</div>
+                        {% endif %}
+                        <div class="timeline-operator">操作人：{{ item.operator }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">暂无进展记录</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 焦点新闻 -->
+    <div class="detail-section">
+        <div class="section-header">
+            <h4><i class="fas fa-newspaper"></i> 焦点新闻</h4>
+        </div>
+        <div class="section-content">
+            {% if news %}
+            <div class="news-list">
+                {% for item in news %}
+                <div class="news-item">
+                    <div class="news-title">
+                        <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+                    </div>
+                    <div class="news-meta">
+                        <span class="news-source">{{ item.source }}</span>
+                        <span class="news-date">{{ item.publish_date }}</span>
+                    </div>
+                    <div class="news-summary">{{ item.summary }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">暂无相关新闻</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
